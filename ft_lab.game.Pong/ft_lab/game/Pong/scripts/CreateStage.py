@@ -1,4 +1,7 @@
 
+# -----------------------------------------------------------.
+# Create stage.
+# -----------------------------------------------------------.
 from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf
 import omni.ext
 import omni.usd
@@ -105,6 +108,11 @@ class CreateStage:
 
         # Hide Assets.
         prim = stage.GetPrimAtPath(orgAssetsPath)
+        primImageable = UsdGeom.Imageable(prim)
+        primImageable.GetVisibilityAttr().Set('invisible')
+
+        path = rootPath + "/StageTemplate/defaultLight"
+        prim = stage.GetPrimAtPath(path)
         primImageable = UsdGeom.Imageable(prim)
         primImageable.GetVisibilityAttr().Set('invisible')
 
