@@ -100,7 +100,7 @@ class CreateStage:
 
         # asset path.
         orgAssetsPath     = rootPath + "/StageTemplate/Resources/Assets"
-        orgFloorBlockPath = orgAssetsPath + "/backPlane_2x2"
+        orgFloorBlockPath = orgAssetsPath + "/floorBlock_2x2"
         orgBlockPath      = orgAssetsPath + "/block_2x1"
 
         # Hide Assets.
