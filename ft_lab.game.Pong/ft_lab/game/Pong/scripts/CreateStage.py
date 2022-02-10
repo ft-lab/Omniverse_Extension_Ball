@@ -133,21 +133,21 @@ class CreateStage:
         zV = 6.0 * 200.0
         for x in range(14):
             path = blocksPath + '/block_' + str(index)
-            self._setBlock(stage, orgBlockPath, path, [-5.0 * 200.0 - 50.0, 0.0, zV], True)
+            self._setBlock(stage, orgBlockPath, path, [-5.0 * 200.0 - 50.0, 5.0, zV], True)
             index += 1
             zV -= 200.0
 
         zV = 6.0 * 200.0
         for x in range(14):
             path = blocksPath + '/block_' + str(index)
-            self._setBlock(stage, orgBlockPath, path, [4.0 * 200.0 + 50.0, 0.0, zV], True)
+            self._setBlock(stage, orgBlockPath, path, [4.0 * 200.0 + 50.0, 5.0, zV], True)
             index += 1
             zV -= 200.0
 
         xV = -5.0 * 200.0
         for x in range(10):
             path = blocksPath + '/block_' + str(index)
-            self._setBlock(stage, orgBlockPath, path, [xV, 0.0, -7.0 * 200.0 - 50.0], False)
+            self._setBlock(stage, orgBlockPath, path, [xV, 5.0, -7.0 * 200.0 - 50.0], False)
             index += 1
             xV += 200.0
 
