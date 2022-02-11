@@ -5,7 +5,10 @@ from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf
 import omni.ext
 import omni.usd
 
+from .StageInfo import StageInfo
+
 class MoveRacket:
+    _stageInfo  = None
     _racketPrim = None
 
     # -------------------------------------------.
@@ -35,14 +38,33 @@ class MoveRacket:
 
         return prim
 
-    def __init__(self):
-        pass
+    def __init__(self, stageInfo : StageInfo):
+        self._stageInfo = stageInfo
 
     def startup (self):
         self._racketPrim = self._getRacketPrim()
 
     def shutdown (self):
         pass
+
+    # -------------------------------------------.
+    # Get racket position.
+    # -------------------------------------------.
+    def GetRacketPosition (self):
+        pos = Gf.Vec3f(0.0, 0.0, 0.0) 
+        if self._racketPrim == None:
+            return pos
+
+        tV = self._racketPrim.GetAttribute("xformOp:translate")
+        if tV.IsValid():
+            pos = Gf.Vec3f(tV.Get())
+        return pos
+
+    # -------------------------------------------.
+    # Get racket size.
+    # -------------------------------------------.
+    def GetRacketSize (self):
+        return Gf.Vec3f(200.0, 100.0, 100.0) 
 
     # -------------------------------------------.
     # Move the racket.
@@ -60,11 +82,8 @@ class MoveRacket:
             pos = Gf.Vec3f(tV.Get())
             xPos = pos[0]
 
-            minX = -5.0 * 200.0
-            maxX = minX + 9.0 * 200.0
-
-            minX += 100.0 + 10.0
-            maxX -= 100.0 + 10.0
+            minX = self._stageInfo.racketMinX
+            maxX = self._stageInfo.racketMaxX
 
             xPos += moveX
             if xPos < minX:

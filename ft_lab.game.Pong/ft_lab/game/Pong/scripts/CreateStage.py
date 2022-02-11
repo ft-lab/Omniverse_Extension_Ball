@@ -10,9 +10,13 @@ import carb.settings
 from pathlib import Path
 import asyncio
 
+from .StageInfo import StageInfo
+
 class CreateStage:
-    def __init__(self):
-        pass
+    _stageInfo  = None
+
+    def __init__(self, stageInfo : StageInfo):
+        self._stageInfo = stageInfo
 
     # -----------------------------------------------.
     # Change Path-Traced.
@@ -47,7 +51,7 @@ class CreateStage:
     # -----------------------------------------------.
     def _setCamera (self, stage):
         # Create camera.
-        pathName = '/World/camera'
+        pathName = self._stageInfo.workPath + '/camera'
         cameraGeom = UsdGeom.Camera.Define(stage, pathName)
 
         cameraGeom.CreateFocalLengthAttr(19.0)
@@ -80,9 +84,8 @@ class CreateStage:
         asyncio.ensure_future(self._setPathTraced())
 
         # Create root(DefaultPrim).
-        rootPath = '/World'
-        UsdGeom.Xform.Define(stage, rootPath)
-        prim = stage.GetPrimAtPath(rootPath)
+        UsdGeom.Xform.Define(stage, self._stageInfo.rootPath)
+        prim = stage.GetPrimAtPath(self._stageInfo.rootPath)
         stage.SetDefaultPrim(prim)
 
         # Set Camera.
@@ -94,7 +97,7 @@ class CreateStage:
 
         # Reference.
         try:
-            path = rootPath + '/StageTemplate'
+            path = self._stageInfo.stageTemplatePath
             UsdGeom.Xform.Define(stage, path)
             prim = stage.GetPrimAtPath(path)
             prim.GetReferences().AddReference(usdStageTemplatePath)
@@ -102,7 +105,7 @@ class CreateStage:
             print("error : " + str(e))
 
         # asset path.
-        orgAssetsPath     = rootPath + "/StageTemplate/Resources/Assets"
+        orgAssetsPath     = self._stageInfo.stageAssetsPath
         orgFloorBlockPath = orgAssetsPath + "/floorBlock_2x2"
         orgBlockPath      = orgAssetsPath + "/block_2x1"
 
@@ -111,16 +114,15 @@ class CreateStage:
         primImageable = UsdGeom.Imageable(prim)
         primImageable.GetVisibilityAttr().Set('invisible')
 
-        path = rootPath + "/StageTemplate/defaultLight"
+        path = self._stageInfo.stageTemplatePath + "/defaultLight"
         prim = stage.GetPrimAtPath(path)
         primImageable = UsdGeom.Imageable(prim)
         primImageable.GetVisibilityAttr().Set('invisible')
 
-        workPath = rootPath + '/work'
-        UsdGeom.Xform.Define(stage, workPath)
-        floorBlocksPath = workPath + '/floorBlocks'
+        UsdGeom.Xform.Define(stage, self._stageInfo.workPath)
+        floorBlocksPath = self._stageInfo.workPath + '/floorBlocks'
         UsdGeom.Xform.Define(stage, floorBlocksPath)
-        blocksPath = workPath + '/blocks'
+        blocksPath = self._stageInfo.workPath + '/blocks'
         UsdGeom.Xform.Define(stage, blocksPath)
         
         # ----------------------------------------------------.
