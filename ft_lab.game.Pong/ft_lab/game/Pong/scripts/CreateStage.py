@@ -114,11 +114,6 @@ class CreateStage:
         primImageable = UsdGeom.Imageable(prim)
         primImageable.GetVisibilityAttr().Set('invisible')
 
-        path = self._stageInfo.stageTemplatePath + "/defaultLight"
-        prim = stage.GetPrimAtPath(path)
-        primImageable = UsdGeom.Imageable(prim)
-        primImageable.GetVisibilityAttr().Set('invisible')
-
         UsdGeom.Xform.Define(stage, self._stageInfo.workPath)
         floorBlocksPath = self._stageInfo.workPath + '/floorBlocks'
         UsdGeom.Xform.Define(stage, floorBlocksPath)

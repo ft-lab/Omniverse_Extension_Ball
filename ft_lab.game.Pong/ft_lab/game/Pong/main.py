@@ -45,7 +45,7 @@ class PongExtension(omni.ext.IExt):
         self._moveRacket.startup()
 
         self._ballList = []
-        for i in range(2):
+        for i in range(1):
             self._ballList.append(BallControl(self._stageInfo, self._moveRacket, i))
             self._ballList[i].startup()
 

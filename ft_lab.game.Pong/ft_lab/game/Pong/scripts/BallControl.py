@@ -19,7 +19,7 @@ class BallControl:
     _ballPrim = None
 
     _speed       = 1.0    # Moving Speed.
-    _movingScale = 30.0  # Moving scale.
+    _movingScale = 40.0  # Moving scale.
     _dirAngle    = -90.0  # Direction angle (0.0 ==> Gf.Vec3f(1, 0, 0)).
 
     def __init__(self, stageInfo : StageInfo, moveRacket : MoveRacket, index : int):
@@ -210,6 +210,8 @@ class BallControl:
     # -----------------------------------------------------.
     def startup (self):
         self._createBall()
+
+        self._speed = random.random() * 0.5 + 0.5
 
     def shutdown (self):
         pass
