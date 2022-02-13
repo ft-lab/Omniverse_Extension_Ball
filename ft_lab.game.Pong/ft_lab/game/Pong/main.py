@@ -10,6 +10,7 @@ from .scripts.InputControl import InputControl
 from .scripts.MoveRacket import MoveRacket
 from .scripts.StageInfo import StageInfo
 from .scripts.BallControl import BallControl
+from .scripts.AudioControl import AudioControl
 
 # ----------------------------------------------------.
 class PongExtension(omni.ext.IExt):
@@ -18,6 +19,7 @@ class PongExtension(omni.ext.IExt):
     _moveRacket   = None
     _stageInfo    = None
     _ballList     = None
+    _audioControl = None
     _app = None
     _pre_update_sub = None
 
@@ -38,15 +40,18 @@ class PongExtension(omni.ext.IExt):
         for ball in self._ballList:
             ball.updateBall()
 
-    # shapes initialization.
-    async def _initShapes (self):
+    # initialization.
+    async def _initStageData (self):
         await omni.kit.app.get_app().next_update_async()
         self._moveRacket = MoveRacket(self._stageInfo)
         self._moveRacket.startup()
 
+        self._audioControl = AudioControl()
+        self._audioControl.startup()
+
         self._ballList = []
         for i in range(1):
-            self._ballList.append(BallControl(self._stageInfo, self._moveRacket, i))
+            self._ballList.append(BallControl(self._stageInfo, self._moveRacket, self._audioControl, i))
             self._ballList[i].startup()
 
     # ------------------------------------------.
@@ -62,7 +67,7 @@ class PongExtension(omni.ext.IExt):
         self._inputControl = InputControl()
         self._inputControl.startup()
 
-        asyncio.ensure_future(self._initShapes())
+        asyncio.ensure_future(self._initStageData())
 
         # pre update event.
         self._app = omni.kit.app.get_app()
@@ -76,6 +81,7 @@ class PongExtension(omni.ext.IExt):
 
         self._inputControl.shutdown()
         self._createStage.shutdown()
+        self._audioControl.shutdown()
 
         self._pre_update_sub = None
         self._app  = None

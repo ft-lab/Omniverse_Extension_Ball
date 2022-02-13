@@ -10,11 +10,13 @@ import math
 
 from .StageInfo import StageInfo
 from .MoveRacket import MoveRacket
+from .AudioControl import AudioControl
 
 class BallControl:
     _index = 0     # index.
     _stageInfo  = None
     _moveRacket = None
+    _audioControl = None
 
     _ballPrim = None
 
@@ -22,9 +24,10 @@ class BallControl:
     _movingScale = 40.0  # Moving scale.
     _dirAngle    = -90.0  # Direction angle (0.0 ==> Gf.Vec3f(1, 0, 0)).
 
-    def __init__(self, stageInfo : StageInfo, moveRacket : MoveRacket, index : int):
-        self._stageInfo  = stageInfo
-        self._moveRacket = moveRacket
+    def __init__(self, stageInfo : StageInfo, moveRacket : MoveRacket, audioControl : AudioControl, index : int):
+        self._stageInfo    = stageInfo
+        self._moveRacket   = moveRacket
+        self._audioControl = audioControl
         self._index     = index
         self._initFirstDirection()
 
@@ -112,19 +115,18 @@ class BallControl:
         rMinY = racketPos[2] - racketSize[2] * 0.5 - 25.0
         rMaxY = racketPos[2] + racketSize[2] * 0.5 + 25.0
         if pos2[0] >= rMinX and pos2[0] <= rMaxX and pos2[2] >= rMinY and pos2[2] <= rMaxY:
-            #if pos2[0] > rMinX:
-            #    t = (rMinX - pos1[0]) / dirV[0]
-            #    newP = dirV * t + pos1
-            #elif pos2[0] < rMaxX:
-            #    t = (rMaxX - pos1[0]) / dirV[0]
-            #    newP = dirV * t + pos1
             if pos2[2] > rMinY:
                 t = (rMinY - pos1[2]) / dirV[2]
                 newP = dirV * t + pos1
             elif pos2[2] < rMaxY:
                 t = (rMaxY - pos1[2]) / dirV[2]
                 newP = dirV * t + pos1
-
+            elif pos2[0] > rMinX:
+                t = (rMinX - pos1[0]) / dirV[0]
+                newP = dirV * t + pos1
+            elif pos2[0] < rMaxX:
+                t = (rMaxX - pos1[0]) / dirV[0]
+                newP = dirV * t + pos1
         return newP
 
     # -----------------------------------------------------.
@@ -165,6 +167,10 @@ class BallControl:
                 chkF = True
                 dirV2 = Gf.Vec3f(dirV[0], 0.0, -dirV[2])
 
+            # Play sound (Hit wall).
+            if chkF:
+                self._audioControl.play(1)
+
             # Collision with racket.
             if chkF == False and self._moveRacket != None:
                 racketPos  = self._moveRacket.GetRacketPosition()
@@ -183,6 +189,11 @@ class BallControl:
                     elif pos2[0] < rMaxX:
                         chkF = True
                         dirV2 = Gf.Vec3f(-dirV[0], 0.0, dirV[2])
+
+                if chkF:
+                    # Play sound (Hit racket).
+                    if chkF:
+                        self._audioControl.play(0)
 
             # Clip in moving range.
             newPos = self._clipPos(pos, pos2)
@@ -210,8 +221,7 @@ class BallControl:
     # -----------------------------------------------------.
     def startup (self):
         self._createBall()
-
-        self._speed = random.random() * 0.5 + 0.5
+        self._speed = 0.8 + random.random() * 0.5
 
     def shutdown (self):
         pass
