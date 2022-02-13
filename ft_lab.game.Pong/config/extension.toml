@@ -34,6 +34,7 @@ icon = "data/icon.png"
 
 # We only depend on testing framework currently:
 [dependencies]
+"omni.audioplayer" = {}
 
 # Main python module this extension provides.
 [[python.module]]
