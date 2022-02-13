@@ -167,9 +167,12 @@ class BallControl:
                 chkF = True
                 dirV2 = Gf.Vec3f(dirV[0], 0.0, -dirV[2])
 
-            # Play sound (Hit wall).
             if chkF:
+                # Play sound (Hit wall).
                 self._audioControl.play(1)
+
+                # score.
+                self._stageInfo.playerScore += 1
 
             # Collision with racket.
             if chkF == False and self._moveRacket != None:
@@ -191,9 +194,12 @@ class BallControl:
                         dirV2 = Gf.Vec3f(-dirV[0], 0.0, dirV[2])
 
                 if chkF:
-                    # Play sound (Hit racket).
                     if chkF:
+                        # Play sound (Hit racket).
                         self._audioControl.play(0)
+
+                        # score.
+                        self._stageInfo.playerScore += 10
 
             # Clip in moving range.
             newPos = self._clipPos(pos, pos2)

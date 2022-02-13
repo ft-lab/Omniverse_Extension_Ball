@@ -27,6 +27,12 @@ class StageInfo:
     # ball radius.
     ballRadius = 50.0
 
+    # Score.
+    playerScore = 0
+
+    # Life.
+    playerLife = 3
+
     def __init__(self):
         self.racketMinX = -5.0 * 200.0
         self.racketMaxX = self.racketMinX + 9.0 * 200.0

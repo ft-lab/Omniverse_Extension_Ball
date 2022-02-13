@@ -11,6 +11,7 @@ from .scripts.MoveRacket import MoveRacket
 from .scripts.StageInfo import StageInfo
 from .scripts.BallControl import BallControl
 from .scripts.AudioControl import AudioControl
+from .scripts.OverlayControl import OverlayControl
 
 # ----------------------------------------------------.
 class PongExtension(omni.ext.IExt):
@@ -20,6 +21,8 @@ class PongExtension(omni.ext.IExt):
     _stageInfo    = None
     _ballList     = None
     _audioControl = None
+    _overlayControl = None
+
     _app = None
     _pre_update_sub = None
 
@@ -67,6 +70,9 @@ class PongExtension(omni.ext.IExt):
         self._inputControl = InputControl()
         self._inputControl.startup()
 
+        self._overlayControl = OverlayControl(self._stageInfo)
+        self._overlayControl.startup()
+
         asyncio.ensure_future(self._initStageData())
 
         # pre update event.
@@ -82,6 +88,7 @@ class PongExtension(omni.ext.IExt):
         self._inputControl.shutdown()
         self._createStage.shutdown()
         self._audioControl.shutdown()
+        self._overlayControl.shutdown()
 
         self._pre_update_sub = None
         self._app  = None
