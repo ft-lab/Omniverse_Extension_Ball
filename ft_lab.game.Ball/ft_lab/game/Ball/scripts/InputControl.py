@@ -1,5 +1,5 @@
 # -----------------------------------------------------.
-# Input control.
+# Input control (Gamepad / Keyboard).
 # -----------------------------------------------------.
 from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf
 import omni.ext
@@ -35,6 +35,11 @@ class InputControl:
     _input_provider = None
     _gamepad_connection_subs = None
     _gamepad_inputs = None
+    _keyboard = None
+    _keyboard_subs = None
+
+    _push_key_left  = False
+    _push_key_right = False
 
     def __init__(self):
         pass
@@ -93,7 +98,29 @@ class InputControl:
         if gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_RIGHT] > minV:
             moveX += scaleV * gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_RIGHT]
 
+        if self._push_key_left:
+            moveX -= scaleV
+        if self._push_key_right:
+            moveX += scaleV
+
         return moveX
+
+    # ------------------------------------------------------.
+    # Keyboard event.
+    # ------------------------------------------------------.
+    def _keyboard_event (self, event : carb.input.KeyboardEvent):
+        if event.type == carb.input.KeyboardEventType.KEY_PRESS:
+            if event.input == carb.input.KeyboardInput.LEFT:
+                self._push_key_left  = True
+            if event.input == carb.input.KeyboardInput.RIGHT:
+                self._push_key_right = True
+        elif event.type == carb.input.KeyboardEventType.KEY_RELEASE:
+            if event.input == carb.input.KeyboardInput.LEFT:
+                self._push_key_left  = False
+            if event.input == carb.input.KeyboardInput.RIGHT:
+                self._push_key_right = False
+
+        return True
 
     # ------------------------------------------------------.
     def startup (self):
@@ -107,12 +134,25 @@ class InputControl:
             return not callable(getattr(carb.input.GamepadInput, attr)) and not attr.startswith("__") and attr != "name" and attr != "COUNT"
         self._gamepad_inputs = dict((getattr(carb.input.GamepadInput, attr), attr) for attr in dir(carb.input.GamepadInput) if filter_gamepad_input_attribs(attr))
 
+        # Assign keyboard event.
+        appwindow = omni.appwindow.get_default_app_window()
+        self._keyboard = appwindow.get_keyboard()
+        self._keyboard_subs = self._input.subscribe_to_keyboard_events(self._keyboard, self._keyboard_event)
+
     def shutdown (self):
-        self._input.unsubscribe_to_gamepad_connection_events(self._gamepad_connection_subs)
+        if self._input != None:
+            self._input.unsubscribe_to_gamepad_connection_events(self._gamepad_connection_subs)
+
+        # Release keyboard event.
+        if self._input != None:
+            self._input.unsubscribe_to_keyboard_events(self._keyboard, self._keyboard_subs)
 
         self._gamepad_connection_subs = None
         self._gamepad_inputs = None
         self._gamepads = None
+
+        self._keyboard_subs = None
+        self._keyboard      = None
 
         self._input_provider = None
         self._input = None
