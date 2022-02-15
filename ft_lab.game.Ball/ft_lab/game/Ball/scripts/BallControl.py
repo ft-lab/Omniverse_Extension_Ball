@@ -80,7 +80,7 @@ class BallControl:
 
         # Set position.
         px = ((random.random() - 0.5) * 2.0) * 500.0
-        pz = ((random.random() - 0.5) * 2.0) * 300.0
+        pz = -1000.0
         UsdGeom.XformCommonAPI(sphereGeom).SetTranslate((px, self._stageInfo.ballYPos, pz))
 
     # -----------------------------------------------------.

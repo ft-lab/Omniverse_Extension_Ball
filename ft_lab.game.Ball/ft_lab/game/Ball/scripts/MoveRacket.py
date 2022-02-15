@@ -21,20 +21,39 @@ class MoveRacket:
         orgAssetsPath = rootPath + '/StageTemplate/Resources/Assets'
         racketOrgPath = orgAssetsPath + '/racket'
 
-        # Create Racket.
         workPath = rootPath + '/work'
         racketPath = workPath + '/racket'
-        UsdGeom.Xform.Define(stage, racketPath)
 
-        prim = stage.GetPrimAtPath(racketPath)
-        prim.CreateAttribute("xformOp:translate", Sdf.ValueTypeNames.Float3, False).Set(Gf.Vec3f(0, 10, 1140))
-        prim.CreateAttribute("xformOp:scale", Sdf.ValueTypeNames.Float3, False).Set(Gf.Vec3f(100, 100, 100))
-        prim.CreateAttribute("xformOp:rotateXYZ", Sdf.ValueTypeNames.Float3, False).Set(Gf.Vec3f(-90, 0, 0))
-        transformOrder = prim.CreateAttribute("xformOpOrder", Sdf.ValueTypeNames.String, False)
-        transformOrder.Set(["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"])
+        # Duplicate Prim from specified path.
+        omni.kit.commands.execute("CopyPrim", path_from=racketOrgPath)
 
-        prim.GetReferences().ClearReferences()
-        prim.GetReferences().AddInternalReference(racketOrgPath)
+        # Stores the path of the newly duplicated Prim.
+        copyPrimPath = ""
+        selection = omni.usd.get_context().get_selection()
+        paths = selection.get_selected_prim_paths()
+        if len(paths) >= 1:
+            copyPrimPath = paths[0]
+
+        prim = None
+        if copyPrimPath != "":
+            # Change Prim's path.
+            # path_from : Path of the original Prim.
+            # path_to   : Path to move to.
+            omni.kit.commands.execute("MovePrim", path_from=copyPrimPath, path_to=racketPath)
+
+            # Change position.
+            prim = stage.GetPrimAtPath(racketPath)
+            tV = prim.GetAttribute("xformOp:translate")
+            if tV.IsValid():
+                tV.Set(Gf.Vec3f(0, 10, 1140))
+
+            # Change rotation.
+            tV = prim.GetAttribute("xformOp:rotateXYZ")
+            if tV.IsValid():
+                tV.Set(Gf.Vec3f(-90, 0, 0))
+
+        # Deselect all.
+        omni.kit.commands.execute("SelectNone")
 
         return prim
 

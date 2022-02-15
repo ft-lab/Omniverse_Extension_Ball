@@ -30,21 +30,33 @@ class CreateStage:
     # Set block.
     # -----------------------------------------------.
     def _setBlock (self, stage, orgPrimPath, path, pos, rot90):
-        UsdGeom.Xform.Define(stage, path)
-        prim = stage.GetPrimAtPath(path)
+        # Duplicate Prim from specified path.
+        omni.kit.commands.execute("CopyPrim", path_from=orgPrimPath)
 
-        prim.CreateAttribute("xformOp:translate", Sdf.ValueTypeNames.Float3, False).Set(Gf.Vec3f(pos[0], pos[1], pos[2]))
-        prim.CreateAttribute("xformOp:scale", Sdf.ValueTypeNames.Float3, False).Set(Gf.Vec3f(100, 100, 100))
+        # Stores the path of the newly duplicated Prim.
+        copyPrimPath = ""
+        selection = omni.usd.get_context().get_selection()
+        paths = selection.get_selected_prim_paths()
+        if len(paths) >= 1:
+            copyPrimPath = paths[0]
+        
+        if copyPrimPath != "":
+            # Change Prim's path.
+            # path_from : Path of the original Prim.
+            # path_to   : Path to move to.
+            omni.kit.commands.execute("MovePrim", path_from=copyPrimPath, path_to=path)
 
-        if rot90 == True:
-            prim.CreateAttribute("xformOp:rotateXYZ", Sdf.ValueTypeNames.Float3, False).Set(Gf.Vec3f(90, 0, -180))
-        else:
-            prim.CreateAttribute("xformOp:rotateXYZ", Sdf.ValueTypeNames.Float3, False).Set(Gf.Vec3f(0, -90, -90))
-        transformOrder = prim.CreateAttribute("xformOpOrder", Sdf.ValueTypeNames.String, False)
-        transformOrder.Set(["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"])
+            # Change position.
+            prim = stage.GetPrimAtPath(path)
+            tV = prim.GetAttribute("xformOp:translate")
+            if tV.IsValid():
+                tV.Set(Gf.Vec3f(pos[0], pos[1], pos[2]))
 
-        prim.GetReferences().ClearReferences()
-        prim.GetReferences().AddInternalReference(orgPrimPath)
+            # Change rotation.
+            if rot90 == True:
+                tV = prim.GetAttribute("xformOp:rotateXYZ")
+                if tV.IsValid():
+                    tV.Set(Gf.Vec3f(90, 0, -180))
 
     # -----------------------------------------------.
     # Set camera.
@@ -155,6 +167,9 @@ class CreateStage:
             self._setBlock(stage, orgBlockPath, path, [xV, 5.0, -7.0 * 200.0 - 50.0], False)
             index += 1
             xV += 200.0
+
+        # Deselect all.
+        omni.kit.commands.execute("SelectNone")
 
     # -----------------------------------------------.
     # Startup.
