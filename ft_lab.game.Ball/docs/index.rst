@@ -1,4 +1,4 @@
-ft_lab.game.Pong
+ft_lab.game.Ball
 ###########################
 
 .. toctree::

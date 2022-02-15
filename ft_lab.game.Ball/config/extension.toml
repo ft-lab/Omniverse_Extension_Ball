@@ -6,8 +6,8 @@ version = "0.0.1"
 authors = ["ft-lab"]
 
 # The title and description fields are primarily for displaying extension info in UI
-title = "Pong"
-description="This is the mini-game Pong."
+title = "Ball"
+description="This is the mini-game wall tennis."
 
 # Path (relative to the root) or content of readme markdown file for UI.
 readme  = "docs/README.md"
@@ -38,5 +38,5 @@ icon = "data/icon.png"
 
 # Main python module this extension provides.
 [[python.module]]
-name = "ft_lab.game.Pong"
+name = "ft_lab.game.Ball"
 

@@ -14,7 +14,7 @@ from .scripts.AudioControl import AudioControl
 from .scripts.OverlayControl import OverlayControl
 
 # ----------------------------------------------------.
-class PongExtension(omni.ext.IExt):
+class WallTennisExtension(omni.ext.IExt):
     _inputControl = None
     _createStage  = None
     _moveRacket   = None
@@ -61,7 +61,7 @@ class PongExtension(omni.ext.IExt):
     # Extension startup.
     # ------------------------------------------.
     def on_startup (self, ext_id):
-        print("[ft_lab.game.Pong] startup")
+        print("[ft_lab.game.Ball] startup")
 
         self._stageInfo = StageInfo()
         self._createStage = CreateStage(self._stageInfo)
@@ -83,7 +83,7 @@ class PongExtension(omni.ext.IExt):
     # Extension shutdown.
     # ------------------------------------------.
     def on_shutdown(self):
-        print("[ft_lab.game.Pong] shutdown")
+        print("[ft_lab.game.Ball] shutdown")
 
         self._inputControl.shutdown()
         self._createStage.shutdown()
