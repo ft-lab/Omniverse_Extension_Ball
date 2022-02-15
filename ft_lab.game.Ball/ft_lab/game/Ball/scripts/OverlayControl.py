@@ -14,6 +14,7 @@ class OverlayControl:
     _stageInfo = None
     _subs = None
     _window = None
+    _showUI = True
 
     def __init__(self, stageInfo : StageInfo):
         self._stageInfo = stageInfo
@@ -37,14 +38,21 @@ class OverlayControl:
                 with omni.ui.Placer(offset_x=rec[0] - 250, offset_y=50):
                     # Set label.
                     f = omni.ui.Label("SCORE : " + format(self._stageInfo.playerScore, '#010'))
-                    f.visible = True
+                    f.visible = self._showUI
                     f.set_style({"color": 0xff00ffff, "font_size": 28})
 
     def startup (self):
         # Get main window viewport.
         self._window = omni.ui.Window('Viewport') 
         self._subs = omni.kit.app.get_app().get_update_event_stream().create_subscription_to_pop(self.on_update)
+        self._showUI = True
 
     def shutdown (self):
-        self._subs = None
+        async def _wait_update ():
+            self._showUI = False
+            await omni.kit.app.get_app().next_update_async()
+            self._subs = None
+
+        asyncio.ensure_future(_wait_update())
+
 
