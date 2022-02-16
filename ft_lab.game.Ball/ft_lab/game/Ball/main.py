@@ -17,6 +17,7 @@ from .scripts.StageInfo import StageInfo
 from .scripts.BallControl import BallControl
 from .scripts.AudioControl import AudioControl
 from .scripts.OverlayControl import OverlayControl
+from .scripts.ChangePostProcessing import ChangePostProcessing
 
 # ----------------------------------------------------.
 class WallTennisExtension(omni.ext.IExt):
@@ -133,6 +134,13 @@ class WallTennisExtension(omni.ext.IExt):
         # pre update event.
         self._app = omni.kit.app.get_app()
         self._pre_update_sub = self._app.get_pre_update_event_stream().create_subscription_to_pop(self._on_pre_update)
+
+        # Change post processing parameters.
+        async def _change_post_processing ():
+            await omni.kit.app.get_app().next_update_async()
+            postProcessing = ChangePostProcessing()
+            postProcessing.Change()
+        asyncio.ensure_future(_change_post_processing())
 
     # ------------------------------------------.
     # Edit from menu.
