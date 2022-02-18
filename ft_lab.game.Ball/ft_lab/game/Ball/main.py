@@ -87,18 +87,20 @@ class WallTennisExtension(omni.ext.IExt):
     # Update event.
     # ------------------------------------------.
     def _on_pre_update (self, event):
-        if self._moveRacket == None:
+        if self._moveRacket == None or self._inputControl == None:
             return
 
         # Get Gamepad input.
         moveX = self._inputControl.GetMoveRacketX()
 
         # Move racket.
-        self._moveRacket.MoveRacket(moveX)
+        if self._moveRacket != None:
+            self._moveRacket.MoveRacket(moveX)
 
         # Update balls.
-        for ball in self._ballList:
-            ball.updateBall()
+        if self._ballList != None:
+            for ball in self._ballList:
+                ball.updateBall()
 
     # initialization.
     async def _initStageData (self):
@@ -114,6 +116,9 @@ class WallTennisExtension(omni.ext.IExt):
             self._ballList.append(BallControl(self._stageInfo, self._moveRacket, self._audioControl, i))
             self._ballList[i].startup()
 
+        self._overlayControl = OverlayControl(self._stageInfo, self._stateData)
+        self._overlayControl.startup()
+
     # ------------------------------------------.
     # Start from menu.
     # ------------------------------------------.
@@ -128,9 +133,6 @@ class WallTennisExtension(omni.ext.IExt):
 
         self._inputControl = InputControl()
         self._inputControl.startup()
-
-        self._overlayControl = OverlayControl(self._stageInfo)
-        self._overlayControl.startup()
 
         asyncio.ensure_future(self._initStageData())
 

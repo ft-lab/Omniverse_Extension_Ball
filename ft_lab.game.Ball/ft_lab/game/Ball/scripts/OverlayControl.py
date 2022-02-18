@@ -7,17 +7,25 @@ import omni.kit.app
 import carb.events
 import time
 import asyncio
+from pathlib import Path
 
 from .StageInfo import StageInfo
+from .StateData import StateData
+from .LoadImageRGBA import LoadImageRGBA
 
 class OverlayControl:
     _stageInfo = None
+    _stateData = None
     _subs = None
     _window = None
     _showUI = True
 
-    def __init__(self, stageInfo : StageInfo):
+    _titleImagePath = ""
+    _titleImage = None
+
+    def __init__(self, stageInfo : StageInfo, stateData : StateData):
         self._stageInfo = stageInfo
+        self._stateData = stateData
 
     # ----------------------------------------------------------.
     # Calculates the reference position in the viewport UI coordinates.
@@ -45,11 +53,42 @@ class OverlayControl:
         return (mX, mY, viewportSize[0], viewportSize[1])
 
     # ----------------------------------------------------------.
-    # Update event.
+    # State : Title
     # ----------------------------------------------------------.
-    def on_update (self, e: carb.events.IEvent):
-        # Get Viewport position, size.
-        posD = self._getViewportUIOriginPos()
+    def _showStateTitle (self, e: carb.events.IEvent, posD):
+        marginX = posD[0]
+        marginY = posD[1]
+        viewportWidth  = posD[2]
+        viewportHeight = posD[3]
+
+        aspectV = 800.0 / 309.0
+        tWid = viewportWidth * 0.7
+        tHei = tWid / aspectV
+        tX = (viewportWidth - tWid) * 0.5 + marginX
+        tY = marginY
+
+        with self._window.frame:
+            with omni.ui.ZStack():
+                # Darken the viewport.
+                with omni.ui.VStack(height=0):
+                    with omni.ui.Placer(offset_x=marginX, offset_y=marginY):
+                        if self._showUI:
+                            omni.ui.Rectangle(style={"background_color": 0x80000000}, width=viewportWidth, height=viewportHeight)
+
+                # Draw title image.
+                with omni.ui.VStack(height=0):
+                    with omni.ui.Placer(offset_x=tX, offset_y=tY):
+                        # "omni.ui.Image" cannot be used with "get_update_event_stream().create_subscription_to_pop".
+                        # Use "omni.ui.ImageWithProvider" instead.
+                        if self._titleImage != None:
+                            byte_provider = self._titleImage.GetByteProvider()
+                            img = omni.ui.ImageWithProvider(byte_provider, width=tWid, height=tHei)
+                            img.visible = self._showUI
+
+    # ----------------------------------------------------------.
+    # State : Game
+    # ----------------------------------------------------------.
+    def _showStateGame (self, e: carb.events.IEvent, posD):
         marginX = posD[0]
         marginY = posD[1]
         viewportWidth  = posD[2]
@@ -57,7 +96,7 @@ class OverlayControl:
 
         scoreWidth = 250
         with self._window.frame:
-            with omni.ui.ZStack():            
+            with omni.ui.ZStack():
                 with omni.ui.VStack(height=0):
                     with omni.ui.Placer(offset_x=marginX + (viewportWidth - scoreWidth) - 4, offset_y=marginY + 4):
                         # Set label.
@@ -72,12 +111,29 @@ class OverlayControl:
                         f.visible = self._showUI
                         f.set_style({"color": 0xff00ffff, "font_size": 28})
 
+    # ----------------------------------------------------------.
+    # Update event.
+    # ----------------------------------------------------------.
+    def on_update (self, e: carb.events.IEvent):
+        # Get Viewport position, size.
+        posD = self._getViewportUIOriginPos()
+
+        #self._showStateGame(e, posD)
+        self._showStateTitle(e, posD)
 
     def startup (self):
+        imgPath = Path(__file__).parent.parent.joinpath("resources").joinpath("images")
+        imgPath = f"{imgPath}/title.png"
+
+        # Load title image.
+        self._titleImage = LoadImageRGBA()
+        if not self._titleImage.Open(imgPath):
+            self._titleImage = None
+
         # Get main window viewport.
         self._window = omni.ui.Window('Viewport') 
-        self._subs = omni.kit.app.get_app().get_update_event_stream().create_subscription_to_pop(self.on_update)
         self._showUI = True
+        self._subs = omni.kit.app.get_app().get_update_event_stream().create_subscription_to_pop(self.on_update)
 
     def shutdown (self):
         async def _wait_update ():
