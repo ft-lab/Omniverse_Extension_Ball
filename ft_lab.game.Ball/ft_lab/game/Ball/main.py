@@ -18,10 +18,12 @@ from .scripts.BallControl import BallControl
 from .scripts.AudioControl import AudioControl
 from .scripts.OverlayControl import OverlayControl
 from .scripts.ChangePostProcessing import ChangePostProcessing
+from .scripts.StateData import StateData
 
 # ----------------------------------------------------.
 class WallTennisExtension(omni.ext.IExt):
     _game_start = False
+    _stateData    = None
     _inputControl = None
     _createStage  = None
     _moveRacket   = None
@@ -119,6 +121,7 @@ class WallTennisExtension(omni.ext.IExt):
         if self._app != None:
             self._menu_exit()
 
+        self._stateData = StateData()
         self._stageInfo = StageInfo()
         self._createStage = CreateStage(self._stageInfo)
         self._createStage.startup()

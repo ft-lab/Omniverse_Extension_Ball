@@ -1,5 +1,5 @@
 # -----------------------------------------------------.
-# Overlay control.
+# Overlay control (Title screen, score display, game over screen).
 # -----------------------------------------------------.
 from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf
 import omni.ui
@@ -19,7 +19,11 @@ class OverlayControl:
     def __init__(self, stageInfo : StageInfo):
         self._stageInfo = stageInfo
 
-    def _getViewportRect (self):
+    # ----------------------------------------------------------.
+    # Calculates the reference position in the viewport UI coordinates.
+    # return : (posX, posY, Viewport Width, Viewport Height)
+    # ----------------------------------------------------------.
+    def _getViewportUIOriginPos (self):
         # Get main window viewport.
         viewportI = omni.kit.viewport.acquire_viewport_interface()
         vWindow = viewportI.get_viewport_window(None)
@@ -27,19 +31,47 @@ class OverlayControl:
         # Get viewport rect.
         viewportRect = vWindow.get_viewport_rect()
         viewportSize = (viewportRect[2] - viewportRect[0], viewportRect[3] - viewportRect[1])
-        return viewportSize
 
+        captionHeight = 24  # Height of the caption in the Viewport window.
+        margin = 2          # frame size.
+
+        # Get Viewport window (UI).
+        uiViewportWindow = omni.ui.Workspace.get_window("Viewport")
+
+        # Calculate the origin of the viewport as UI.
+        mX = (uiViewportWindow.width - margin * 2.0  - viewportSize[0]) * 0.5
+        mY = (uiViewportWindow.height - margin * 2.0 - captionHeight - viewportSize[1]) * 0.5
+
+        return (mX, mY, viewportSize[0], viewportSize[1])
+
+    # ----------------------------------------------------------.
+    # Update event.
+    # ----------------------------------------------------------.
     def on_update (self, e: carb.events.IEvent):
-        # Get viewport size.
-        rec = self._getViewportRect()
+        # Get Viewport position, size.
+        posD = self._getViewportUIOriginPos()
+        marginX = posD[0]
+        marginY = posD[1]
+        viewportWidth  = posD[2]
+        viewportHeight = posD[3]
 
+        scoreWidth = 250
         with self._window.frame:
-            with omni.ui.VStack(height=0):
-                with omni.ui.Placer(offset_x=rec[0] - 250, offset_y=50):
-                    # Set label.
-                    f = omni.ui.Label("SCORE : " + format(self._stageInfo.playerScore, '#010'))
-                    f.visible = self._showUI
-                    f.set_style({"color": 0xff00ffff, "font_size": 28})
+            with omni.ui.ZStack():            
+                with omni.ui.VStack(height=0):
+                    with omni.ui.Placer(offset_x=marginX + (viewportWidth - scoreWidth) - 4, offset_y=marginY + 4):
+                        # Set label.
+                        f = omni.ui.Label("SCORE : " + format(self._stageInfo.playerScore, '#010'))
+                        f.visible = self._showUI
+                        f.set_style({"color": 0xff00ffff, "font_size": 28})
+
+                with omni.ui.VStack(height=0):
+                    with omni.ui.Placer(offset_x=marginX + 8, offset_y=marginY + 4):
+                        # Set label.
+                        f = omni.ui.Label("LIFE : " + str(self._stageInfo.playerLife))
+                        f.visible = self._showUI
+                        f.set_style({"color": 0xff00ffff, "font_size": 28})
+
 
     def startup (self):
         # Get main window viewport.
