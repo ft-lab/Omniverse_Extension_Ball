@@ -50,11 +50,6 @@ class OverlayControl:
         mX = (uiViewportWindow.width - margin * 2.0  - viewportSize[0]) * 0.5
         mY = (uiViewportWindow.height - margin * 2.0 - captionHeight - viewportSize[1]) * 0.5
 
-        # if full screen.
-        if mX < 0 or mY < 0:
-            mX = 0.0
-            mY = 0.0
-
         return (mX, mY, viewportSize[0], viewportSize[1])
 
     # ----------------------------------------------------------.
@@ -72,7 +67,8 @@ class OverlayControl:
         tX = (viewportWidth - tWid) * 0.5 + marginX
         tY = marginY
 
-        fontHeight = viewportHeight * 0.08
+        fontHeight  = viewportHeight * 0.08
+        fontHeight2 = viewportHeight * 0.04
 
         with self._window.frame:
             with omni.ui.ZStack():
@@ -120,6 +116,23 @@ class OverlayControl:
                         f = omni.ui.Label(">")
                         f.visible = self._showUI
                         f.set_style({"color": 0xff00ffff, "font_size": fontHeight})
+
+                # How to operate.
+                px = (viewportWidth - fontHeight * 4) * 0.5 + marginX
+                py = (viewportHeight - fontHeight) * 0.95 + marginY
+                with omni.ui.VStack(height=0):
+                    with omni.ui.Placer(offset_x=px, offset_y=py):
+                        # Set label.
+                        f = omni.ui.Label("Cursor Key/GamePad Left Stick : Move")
+                        f.visible = self._showUI
+                        f.set_style({"color": 0xff00ffff, "font_size": fontHeight2})
+
+                with omni.ui.VStack(height=0):
+                    with omni.ui.Placer(offset_x=px, offset_y=py + fontHeight2):
+                        # Set label.
+                        f = omni.ui.Label("Enter Key/GamePad A : Menu Apply")
+                        f.visible = self._showUI
+                        f.set_style({"color": 0xff00ffff, "font_size": fontHeight2})
 
     # ----------------------------------------------------------.
     # State : Game
