@@ -1,7 +1,6 @@
 # -----------------------------------------------------.
 # Stage information.
 # -----------------------------------------------------.
-from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf
 
 class StageInfo:
     # Range of movement of the racket in the X direction.

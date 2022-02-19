@@ -40,6 +40,8 @@ class InputControl:
 
     _push_key_left  = False
     _push_key_right = False
+    _push_key_up    = False
+    _push_key_down  = False
 
     def __init__(self):
         pass
@@ -81,7 +83,7 @@ class InputControl:
             print(" carb.input.GamepadConnectionEventType.DISCONNECTED")
 
     # ------------------------------------------------------.
-    # gamepad update event.
+    # Racket movement event.
     # ------------------------------------------------------.
     def GetMoveRacketX (self):
         for gamepad_desc in self._gamepads:
@@ -106,6 +108,35 @@ class InputControl:
         return moveX
 
     # ------------------------------------------------------.
+    # Selecting(UP\DOWN) the title menu.
+    # ------------------------------------------------------.
+    def GetUpDown_TitleMenu ():
+        buttonV = (False, False)
+
+        for gamepad_desc in self._gamepads:
+            for gamepad_input in self._gamepad_inputs:
+                # Store value.
+                val = self._input.get_gamepad_value(gamepad_desc.gamepad_device, gamepad_input)
+                gamepad_desc.input_val[gamepad_input] = float(val)
+
+        minV = 0.3
+        if gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_UP] > minV:
+            buttonV[0] = True
+        if gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_DOWN] > minV:
+            buttonV[1] = True
+        if gamepad_desc.input_val[carb.input.GamepadInput.DPAD_UP] > minV:
+            buttonV[0] = True
+        if gamepad_desc.input_val[carb.input.GamepadInput.DPAD_DOWN] > minV:
+            buttonV[1] = True
+
+        if self._push_key_up:
+            buttonV[0] = True
+        if self._push_key_down:
+            buttonV[1] = True
+
+        return buttonV
+
+    # ------------------------------------------------------.
     # Keyboard event.
     # ------------------------------------------------------.
     def _keyboard_event (self, event : carb.input.KeyboardEvent):
@@ -114,11 +145,20 @@ class InputControl:
                 self._push_key_left  = True
             if event.input == carb.input.KeyboardInput.RIGHT:
                 self._push_key_right = True
+            if event.input == carb.input.KeyboardInput.UP:
+                self._push_key_up  = True
+            if event.input == carb.input.KeyboardInput.DOWN:
+                self._push_key_down  = True
+
         elif event.type == carb.input.KeyboardEventType.KEY_RELEASE:
             if event.input == carb.input.KeyboardInput.LEFT:
                 self._push_key_left  = False
             if event.input == carb.input.KeyboardInput.RIGHT:
                 self._push_key_right = False
+            if event.input == carb.input.KeyboardInput.UP:
+                self._push_key_up  = False
+            if event.input == carb.input.KeyboardInput.DOWN:
+                self._push_key_down  = False
 
         return True
 

@@ -10,30 +10,11 @@ from omni.kit.menu.utils import MenuItemDescription
 
 import asyncio
 
-from .scripts.CreateStage import CreateStage
-from .scripts.InputControl import InputControl
-from .scripts.MoveRacket import MoveRacket
-from .scripts.StageInfo import StageInfo
-from .scripts.BallControl import BallControl
-from .scripts.AudioControl import AudioControl
-from .scripts.OverlayControl import OverlayControl
-from .scripts.ChangePostProcessing import ChangePostProcessing
-from .scripts.StateData import StateData
+from .scripts.GameWorkflow import GameWorkflow
 
 # ----------------------------------------------------.
 class WallTennisExtension(omni.ext.IExt):
-    _game_start = False
-    _stateData    = None
-    _inputControl = None
-    _createStage  = None
-    _moveRacket   = None
-    _stageInfo    = None
-    _ballList     = None
-    _audioControl = None
-    _overlayControl = None
-
-    _app = None
-    _pre_update_sub = None
+    _gameWorkflow = None
 
     # Menu list.
     _menu_list = None
@@ -84,83 +65,23 @@ class WallTennisExtension(omni.ext.IExt):
         asyncio.ensure_future(_rebuild_menus())
 
     # ------------------------------------------.
-    # Update event.
-    # ------------------------------------------.
-    def _on_pre_update (self, event):
-        if self._moveRacket == None or self._inputControl == None:
-            return
-
-        # Get Gamepad input.
-        moveX = self._inputControl.GetMoveRacketX()
-
-        # Move racket.
-        if self._moveRacket != None:
-            self._moveRacket.MoveRacket(moveX)
-
-        # Update balls.
-        if self._ballList != None:
-            for ball in self._ballList:
-                ball.updateBall()
-
-    # initialization.
-    async def _initStageData (self):
-        await omni.kit.app.get_app().next_update_async()
-        self._moveRacket = MoveRacket(self._stageInfo)
-        self._moveRacket.startup()
-
-        self._audioControl = AudioControl()
-        self._audioControl.startup()
-
-        self._ballList = []
-        for i in range(1):
-            self._ballList.append(BallControl(self._stageInfo, self._moveRacket, self._audioControl, i))
-            self._ballList[i].startup()
-
-        self._overlayControl = OverlayControl(self._stageInfo, self._stateData)
-        self._overlayControl.startup()
-
-    # ------------------------------------------.
     # Start from menu.
     # ------------------------------------------.
     def _menu_start (self):
-        if self._app != None:
-            self._menu_exit()
+        if self._gameWorkflow != None:
+            self._gameWorkflow.GameExit()
+            self._gameWorkflow = None
 
-        self._stateData = StateData()
-        self._stageInfo = StageInfo()
-        self._createStage = CreateStage(self._stageInfo)
-        self._createStage.startup()
-
-        self._inputControl = InputControl()
-        self._inputControl.startup()
-
-        asyncio.ensure_future(self._initStageData())
-
-        # pre update event.
-        self._app = omni.kit.app.get_app()
-        self._pre_update_sub = self._app.get_pre_update_event_stream().create_subscription_to_pop(self._on_pre_update)
-
-        # Change post processing parameters.
-        async def _change_post_processing ():
-            await omni.kit.app.get_app().next_update_async()
-            postProcessing = ChangePostProcessing()
-            postProcessing.Change()
-        asyncio.ensure_future(_change_post_processing())
+        self._gameWorkflow = GameWorkflow()
+        self._gameWorkflow.GameStart()
 
     # ------------------------------------------.
     # Edit from menu.
     # ------------------------------------------.
     def _menu_exit (self):
-        if self._app == None:
+        if self._gameWorkflow == None:
             return
-
-        self._inputControl.shutdown()
-        self._createStage.shutdown()
-        self._audioControl.shutdown()
-        self._overlayControl.shutdown()
-
-        self._pre_update_sub = None
-        self._app  = None
+        self._gameWorkflow.GameExit()
 
     # ------------------------------------------.
     # Extension startup.

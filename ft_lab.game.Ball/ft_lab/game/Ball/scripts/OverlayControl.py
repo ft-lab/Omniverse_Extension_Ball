@@ -41,7 +41,7 @@ class OverlayControl:
         viewportSize = (viewportRect[2] - viewportRect[0], viewportRect[3] - viewportRect[1])
 
         captionHeight = 24  # Height of the caption in the Viewport window.
-        margin = 2          # frame size.
+        margin = 4          # frame size.
 
         # Get Viewport window (UI).
         uiViewportWindow = omni.ui.Workspace.get_window("Viewport")
@@ -67,6 +67,8 @@ class OverlayControl:
         tX = (viewportWidth - tWid) * 0.5 + marginX
         tY = marginY
 
+        fontHeight = viewportHeight * 0.08
+
         with self._window.frame:
             with omni.ui.ZStack():
                 # Darken the viewport.
@@ -85,6 +87,35 @@ class OverlayControl:
                             img = omni.ui.ImageWithProvider(byte_provider, width=tWid, height=tHei)
                             img.visible = self._showUI
 
+                # Menu (GAME / EXIT).
+                px = (viewportWidth - fontHeight * 4) * 0.5 + marginX
+                py = (viewportHeight - fontHeight) * 0.7 + marginY
+                with omni.ui.VStack(height=0):
+                    with omni.ui.Placer(offset_x=px, offset_y=py):
+                        # Set label.
+                        f = omni.ui.Label("GAME")
+                        f.visible = self._showUI
+                        f.set_style({"color": 0xff00ffff, "font_size": fontHeight})
+
+                with omni.ui.VStack(height=0):
+                    with omni.ui.Placer(offset_x=px, offset_y=py + fontHeight * 1.2):
+                        f2 = omni.ui.Label("EXIT")
+                        f2.visible = self._showUI
+                        f2.set_style({"color": 0xff00ffff, "font_size": fontHeight})
+
+                # Menu Cursor.
+                cursor_x = px - fontHeight * 1.0
+                cursor_y = py
+                if self._stateData.selectTitleMenu == 1:
+                    cursor_y += fontHeight * 1.2
+
+                with omni.ui.VStack(height=0):
+                    with omni.ui.Placer(offset_x=cursor_x, offset_y=cursor_y):
+                        # Set label.
+                        f = omni.ui.Label(">")
+                        f.visible = self._showUI
+                        f.set_style({"color": 0xff00ffff, "font_size": fontHeight})
+
     # ----------------------------------------------------------.
     # State : Game
     # ----------------------------------------------------------.
@@ -94,7 +125,9 @@ class OverlayControl:
         viewportWidth  = posD[2]
         viewportHeight = posD[3]
 
-        scoreWidth = 250
+        fontHeight = viewportHeight * 0.08
+
+        scoreWidth = fontHeight * 15
         with self._window.frame:
             with omni.ui.ZStack():
                 with omni.ui.VStack(height=0):
@@ -102,14 +135,14 @@ class OverlayControl:
                         # Set label.
                         f = omni.ui.Label("SCORE : " + format(self._stageInfo.playerScore, '#010'))
                         f.visible = self._showUI
-                        f.set_style({"color": 0xff00ffff, "font_size": 28})
+                        f.set_style({"color": 0xff00ffff, "font_size": fontHeight})
 
                 with omni.ui.VStack(height=0):
                     with omni.ui.Placer(offset_x=marginX + 8, offset_y=marginY + 4):
                         # Set label.
                         f = omni.ui.Label("LIFE : " + str(self._stageInfo.playerLife))
                         f.visible = self._showUI
-                        f.set_style({"color": 0xff00ffff, "font_size": 28})
+                        f.set_style({"color": 0xff00ffff, "font_size": fontHeight})
 
     # ----------------------------------------------------------.
     # Update event.
