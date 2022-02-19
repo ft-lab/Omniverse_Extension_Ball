@@ -1,6 +1,6 @@
 # -----------------------------------------------------.
 # Game Workflow.
-# All games manage the flow here.
+# All game manage the flow here.
 # -----------------------------------------------------.
 from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf
 import omni.ext
@@ -9,7 +9,7 @@ import omni.usd
 import asyncio
 
 from .StageInfo import StageInfo
-from .StateData import StateData
+from .StateData import StateData, StateType
 from .InputControl import InputControl
 from .CreateStage import CreateStage
 from .MoveRacket import MoveRacket
@@ -35,13 +35,35 @@ class GameWorkflow:
         pass
     
     # ------------------------------------------.
-    # Update event.
+    # Update event (Title).
     # ------------------------------------------.
-    def _on_pre_update (self, event):
-        if self._moveRacket == None or self._inputControl == None:
-            return
+    def _pre_update_title (self):
+        # Get Gamepad/keyboard input.
+        menuV = self._inputControl.GetUpDown_TitleMenu()
+        if menuV != None:
+            # Push [UP][DOWN].
+            if menuV[0] or menuV[1]:
+                if self._stateData.selectTitleMenu == 0:
+                    if menuV[1]:
+                        self._stateData.selectTitleMenu = 1
+                elif self._stateData.selectTitleMenu == 1:
+                    if menuV[0]:
+                        self._stateData.selectTitleMenu = 0
+            # Push [Enter].
+            if menuV[2]:
+                # Game start.
+                if self._stateData.selectTitleMenu == 0:
+                    self._stateData.state = StateType.GAME
 
-        # Get Gamepad input.
+                # Exit.
+                if self._stateData.selectTitleMenu == 1:
+                    self.GameExit()
+
+    # ------------------------------------------.
+    # Update event (Game).
+    # ------------------------------------------.
+    def _pre_update_game (self):
+        # Get Gamepad/keyboard input.
         moveX = self._inputControl.GetMoveRacketX()
 
         # Move racket.
@@ -52,6 +74,21 @@ class GameWorkflow:
         if self._ballList != None:
             for ball in self._ballList:
                 ball.updateBall()
+
+    # ------------------------------------------.
+    # Update event.
+    # ------------------------------------------.
+    def _on_pre_update (self, event):
+        if self._moveRacket == None or self._inputControl == None or self._stateData == None:
+            return
+
+        # if title,
+        if self._stateData.state == StateType.TITLE:
+            self._pre_update_title()
+
+        # if game.
+        elif self._stateData.state == StateType.GAME:
+            self._pre_update_game()
 
     # ------------------------------------------.
     # initialization.
@@ -80,6 +117,8 @@ class GameWorkflow:
             self.GameExit()
 
         self._stateData = StateData()
+        self._stateData.state = StateType.TITLE
+
         self._stageInfo = StageInfo()
         self._createStage = CreateStage(self._stageInfo)
         self._createStage.startup()

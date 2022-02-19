@@ -10,7 +10,7 @@ import asyncio
 from pathlib import Path
 
 from .StageInfo import StageInfo
-from .StateData import StateData
+from .StateData import StateData, StateType
 from .LoadImageRGBA import LoadImageRGBA
 
 class OverlayControl:
@@ -49,6 +49,11 @@ class OverlayControl:
         # Calculate the origin of the viewport as UI.
         mX = (uiViewportWindow.width - margin * 2.0  - viewportSize[0]) * 0.5
         mY = (uiViewportWindow.height - margin * 2.0 - captionHeight - viewportSize[1]) * 0.5
+
+        # if full screen.
+        if mX < 0 or mY < 0:
+            mX = 0.0
+            mY = 0.0
 
         return (mX, mY, viewportSize[0], viewportSize[1])
 
@@ -126,19 +131,20 @@ class OverlayControl:
         viewportHeight = posD[3]
 
         fontHeight = viewportHeight * 0.08
+        scoreWidth = fontHeight * 8.5
+        fontHeightSpace = fontHeight * 0.5
 
-        scoreWidth = fontHeight * 15
         with self._window.frame:
             with omni.ui.ZStack():
                 with omni.ui.VStack(height=0):
-                    with omni.ui.Placer(offset_x=marginX + (viewportWidth - scoreWidth) - 4, offset_y=marginY + 4):
+                    with omni.ui.Placer(draggable=True, offset_x=marginX + (viewportWidth - scoreWidth) - 4, offset_y=marginY + fontHeightSpace):
                         # Set label.
                         f = omni.ui.Label("SCORE : " + format(self._stageInfo.playerScore, '#010'))
                         f.visible = self._showUI
                         f.set_style({"color": 0xff00ffff, "font_size": fontHeight})
 
                 with omni.ui.VStack(height=0):
-                    with omni.ui.Placer(offset_x=marginX + 8, offset_y=marginY + 4):
+                    with omni.ui.Placer(draggable=True, offset_x=marginX + fontHeight * 0.5, offset_y=marginY + fontHeightSpace):
                         # Set label.
                         f = omni.ui.Label("LIFE : " + str(self._stageInfo.playerLife))
                         f.visible = self._showUI
@@ -151,8 +157,10 @@ class OverlayControl:
         # Get Viewport position, size.
         posD = self._getViewportUIOriginPos()
 
-        #self._showStateGame(e, posD)
-        self._showStateTitle(e, posD)
+        if self._stateData.state == StateType.TITLE:
+            self._showStateTitle(e, posD)
+        elif self._stateData.state == StateType.GAME:
+            self._showStateGame(e, posD)
 
     def startup (self):
         imgPath = Path(__file__).parent.parent.joinpath("resources").joinpath("images")

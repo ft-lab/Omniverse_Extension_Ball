@@ -42,6 +42,7 @@ class InputControl:
     _push_key_right = False
     _push_key_up    = False
     _push_key_down  = False
+    _push_key_enter = False
 
     def __init__(self):
         pass
@@ -108,10 +109,10 @@ class InputControl:
         return moveX
 
     # ------------------------------------------------------.
-    # Selecting(UP\DOWN) the title menu.
+    # Selecting(UP/DOWN/Enter) the title menu.
     # ------------------------------------------------------.
-    def GetUpDown_TitleMenu ():
-        buttonV = (False, False)
+    def GetUpDown_TitleMenu (self):
+        buttonV = [False, False, False]     # Up/Down/Enter
 
         for gamepad_desc in self._gamepads:
             for gamepad_input in self._gamepad_inputs:
@@ -128,11 +129,15 @@ class InputControl:
             buttonV[0] = True
         if gamepad_desc.input_val[carb.input.GamepadInput.DPAD_DOWN] > minV:
             buttonV[1] = True
+        if gamepad_desc.input_val[carb.input.GamepadInput.A] > minV:
+            buttonV[2] = True
 
         if self._push_key_up:
             buttonV[0] = True
         if self._push_key_down:
             buttonV[1] = True
+        if self._push_key_enter:
+            buttonV[2] = True
 
         return buttonV
 
@@ -149,6 +154,8 @@ class InputControl:
                 self._push_key_up  = True
             if event.input == carb.input.KeyboardInput.DOWN:
                 self._push_key_down  = True
+            if event.input == carb.input.KeyboardInput.ENTER:
+                self._push_key_enter  = True
 
         elif event.type == carb.input.KeyboardEventType.KEY_RELEASE:
             if event.input == carb.input.KeyboardInput.LEFT:
@@ -159,6 +166,8 @@ class InputControl:
                 self._push_key_up  = False
             if event.input == carb.input.KeyboardInput.DOWN:
                 self._push_key_down  = False
+            if event.input == carb.input.KeyboardInput.ENTER:
+                self._push_key_enter  = False
 
         return True
 
