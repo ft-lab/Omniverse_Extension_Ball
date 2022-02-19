@@ -7,9 +7,10 @@ import omni.ext
 import omni.usd
 
 import asyncio
+import time
 
 from .StageInfo import StageInfo
-from .StateData import StateData, StateType
+from .StateData import StateData, StateType, GameMessageType
 from .InputControl import InputControl
 from .CreateStage import CreateStage
 from .MoveRacket import MoveRacket
@@ -46,14 +47,23 @@ class GameWorkflow:
                 if self._stateData.selectTitleMenu == 0:
                     if menuV[1]:
                         self._stateData.selectTitleMenu = 1
+                        self._audioControl.play(1)  # Play sound.
                 elif self._stateData.selectTitleMenu == 1:
                     if menuV[0]:
                         self._stateData.selectTitleMenu = 0
+                        self._audioControl.play(1)  # Play sound.
+
             # Push [Enter].
             if menuV[2]:
                 # Game start.
                 if self._stateData.selectTitleMenu == 0:
                     self._stateData.state = StateType.GAME
+                    self._stateData.gameMessageType = GameMessageType.GAME_START
+
+                    self._stateData.waitSec    = time.time()
+                    self._stateData.waitEndSec = self._stateData.waitSec + self._stateData.gameStartWaitSec
+
+                    self._audioControl.play(0)  # Play sound.
 
                 # Exit.
                 if self._stateData.selectTitleMenu == 1:
@@ -63,6 +73,22 @@ class GameWorkflow:
     # Update event (Game).
     # ------------------------------------------.
     def _pre_update_game (self):
+        # Display a message and wait for a certain amount of time.
+        if self._stateData.waitSec < self._stateData.waitEndSec:
+            self._stateData.waitSec = time.time()
+            return
+
+        # Change the position of the ball.
+        if self._stateData.gameMessageType == GameMessageType.GAME_FAILURE:
+            if self._ballList != None:
+                for ball in self._ballList:
+                    ball.resetBallPosition()
+
+            if self._stageInfo.playerLife > 0:
+                self._stageInfo.playerLife -= 1
+
+        self._stateData.gameMessageType = GameMessageType.NONE
+
         # Get Gamepad/keyboard input.
         moveX = self._inputControl.GetMoveRacketX()
 
@@ -71,9 +97,18 @@ class GameWorkflow:
             self._moveRacket.MoveRacket(moveX)
 
         # Update balls.
+        outOfRange = False
         if self._ballList != None:
             for ball in self._ballList:
                 ball.updateBall()
+                if ball.checkOutOfRange():
+                    outOfRange = True
+
+        # The ball went out of range ==> Failure!.
+        if outOfRange:
+            self._stateData.gameMessageType = GameMessageType.GAME_FAILURE
+            self._stateData.waitSec    = time.time()
+            self._stateData.waitEndSec = self._stateData.waitSec + self._stateData.gameFailureWaitSec
 
     # ------------------------------------------.
     # Update event.

@@ -41,7 +41,7 @@ class StageInfo:
         self.rangeMinX = -5.0 * 200.0
         self.rangeMaxX = self.rangeMinX + 9.0 * 200.0
         self.rangeMinY = -7.0 * 200.0
-        self.rangeMaxY = self.rangeMinY + 13.0 * 200.0
+        self.rangeMaxY = self.rangeMinY + 14.0 * 200.0
 
         self.rangeMinX -= 100.0
         self.rangeMaxX += 100.0

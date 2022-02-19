@@ -10,7 +10,7 @@ import asyncio
 from pathlib import Path
 
 from .StageInfo import StageInfo
-from .StateData import StateData, StateType
+from .StateData import StateData, StateType, GameMessageType
 from .LoadImageRGBA import LoadImageRGBA
 
 class OverlayControl:
@@ -137,18 +137,32 @@ class OverlayControl:
         with self._window.frame:
             with omni.ui.ZStack():
                 with omni.ui.VStack(height=0):
-                    with omni.ui.Placer(draggable=True, offset_x=marginX + (viewportWidth - scoreWidth) - 4, offset_y=marginY + fontHeightSpace):
+                    with omni.ui.Placer(offset_x=marginX + (viewportWidth - scoreWidth) - 4, offset_y=marginY + fontHeightSpace):
                         # Set label.
                         f = omni.ui.Label("SCORE : " + format(self._stageInfo.playerScore, '#010'))
                         f.visible = self._showUI
                         f.set_style({"color": 0xff00ffff, "font_size": fontHeight})
 
                 with omni.ui.VStack(height=0):
-                    with omni.ui.Placer(draggable=True, offset_x=marginX + fontHeight * 0.5, offset_y=marginY + fontHeightSpace):
+                    with omni.ui.Placer(offset_x=marginX + fontHeight * 0.5, offset_y=marginY + fontHeightSpace):
                         # Set label.
                         f = omni.ui.Label("LIFE : " + str(self._stageInfo.playerLife))
                         f.visible = self._showUI
                         f.set_style({"color": 0xff00ffff, "font_size": fontHeight})
+
+                # Show message label.
+                if self._stateData.gameMessageType != GameMessageType.NONE and self._stateData.waitSec < self._stateData.waitEndSec:
+                    messageList = ["", "GAME START !!", "FAILURE !", "GAME OVER ..."]
+                    messageLenList = [0.0, 5.0, 3.0, 5.0]
+                    msgWidth = fontHeight * messageLenList[self._stateData.gameMessageType.value]
+                    with omni.ui.VStack(height=0):
+                        px = marginX + (viewportWidth - msgWidth) * 0.5
+                        py = marginY + viewportHeight * 0.3
+                        with omni.ui.Placer(offset_x=px, offset_y=py):
+                            # Set label.
+                            f = omni.ui.Label(messageList[self._stateData.gameMessageType.value])
+                            f.visible = self._showUI
+                            f.set_style({"color": 0xffa04000, "font_size": fontHeight})
 
     # ----------------------------------------------------------.
     # Update event.

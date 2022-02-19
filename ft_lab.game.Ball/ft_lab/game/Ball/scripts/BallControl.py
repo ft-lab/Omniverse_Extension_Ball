@@ -33,7 +33,10 @@ class BallControl:
 
     def _initFirstDirection (self):
         # (-50.0 - +50.0) + 270.0
-        self._dirAngle = ((random.random() - 0.5) * 2.0) * 50.0 + 270.0
+        v = 0.0
+        while abs(v) < 0.3:
+            v = (random.random() - 0.5) * 2.0
+        self._dirAngle = v * 50.0 + 270.0
 
     def _angleToDirection (self, angle : float):
         v = angle * math.pi / 180.0
@@ -130,6 +133,18 @@ class BallControl:
         return newP
 
     # -----------------------------------------------------.
+    # Determine if the ball went out of range.
+    # -----------------------------------------------------.
+    def checkOutOfRange (self):
+        tV = self._ballPrim.GetAttribute("xformOp:translate")
+        if tV.IsValid():
+            pos = Gf.Vec3f(tV.Get())
+            if pos[2] >= self._stageInfo.rangeMaxY:
+                return True
+
+        return False
+
+    # -----------------------------------------------------.
     # Update ball.
     # -----------------------------------------------------.
     def updateBall (self):
@@ -201,6 +216,9 @@ class BallControl:
                         # score.
                         self._stageInfo.playerScore += 10
 
+                        # Speed up the ball.
+                        self._speed = min(self._speed + random.random() * 0.1, 3.0)
+
             # Clip in moving range.
             newPos = self._clipPos(pos, pos2)
 
@@ -209,25 +227,45 @@ class BallControl:
             # Change direction.
             if chkF:
                 self._dirAngle = self._directionToAngle(dirV2)
-
                 self._dirAngle += ((random.random() - 0.5) * 2.0) * 5.0
 
-                for i in range(5):
+                for i in range(1):
                     if abs(self._dirAngle - 0.0) < 10.0:
-                        self._dirAngle += ((random.random() - 0.5) * 2.0) * 5.0
+                        self._dirAngle += ((random.random() - 0.5) * 2.0) * 10.0
                     elif abs(self._dirAngle - 90.0) < 10.0:
-                        self._dirAngle += ((random.random() - 0.5) * 2.0) * 5.0
+                        self._dirAngle += ((random.random() - 0.5) * 2.0) * 10.0
                     elif abs(self._dirAngle - 180.0) < 10.0:
-                        self._dirAngle += ((random.random() - 0.5) * 2.0) * 5.0
+                        self._dirAngle += ((random.random() - 0.5) * 2.0) * 10.0
                     elif abs(self._dirAngle - 270.0) < 10.0:
-                        self._dirAngle += ((random.random() - 0.5) * 2.0) * 5.0
+                        self._dirAngle += ((random.random() - 0.5) * 2.0) * 10.0
                     else:
                         break
 
     # -----------------------------------------------------.
+    # Reset ball position.
+    # -----------------------------------------------------.
+    def resetBallPosition (self):
+        stage = omni.usd.get_context().get_stage()
+
+        # Change speed.
+        self._speed = 0.8 + random.random() * 0.2
+
+        path = self._stageInfo.workPath + '/balls'
+        ballPath = path + '/sphere_' + str(self._index)
+        prim = stage.GetPrimAtPath(ballPath)
+
+        # Set position.
+        px = ((random.random() - 0.5) * 2.0) * 500.0
+        pz = -1000.0
+        UsdGeom.XformCommonAPI(prim).SetTranslate((px, self._stageInfo.ballYPos, pz))
+
+        # Change direction.
+        self._initFirstDirection()
+
+    # -----------------------------------------------------.
     def startup (self):
         self._createBall()
-        self._speed = 0.8 + random.random() * 0.5
+        self._speed = 0.8 + random.random() * 0.2
 
     def shutdown (self):
         pass
