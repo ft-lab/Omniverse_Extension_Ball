@@ -107,8 +107,20 @@ class GameWorkflow:
                 for ball in self._ballList:
                     ball.resetBallPosition()
 
-            if self._stageInfo.playerLife > 0:
-                self._stageInfo.playerLife -= 1
+            self._stageInfo.playerLife = max(self._stageInfo.playerLife - 1, 0)
+            if self._stageInfo.playerLife == 0:
+                # Game over!
+                self._stateData.gameMessageType = GameMessageType.GAME_OVER
+
+                self._stateData.waitSec    = time.time()
+                self._stateData.waitEndSec = self._stateData.waitSec + self._stateData.gameoverWaitSec
+                return
+
+        # Game over to Title.
+        if self._stateData.gameMessageType == GameMessageType.GAME_OVER:
+            self._stateData.state = StateType.TITLE
+            self._stageInfo.clear()
+            return
 
         self._stateData.gameMessageType = GameMessageType.NONE
 

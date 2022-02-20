@@ -48,4 +48,8 @@ class StageInfo:
         self.rangeMinY -= 100.0
         self.rangeMaxY += 100.0
 
+    def clear (self):
+        self.playerScore = 0
+        self.playerLife  = 3
+
 
