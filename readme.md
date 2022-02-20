@@ -9,18 +9,16 @@ NVIDIA OmniverseのExtensionの学習のためのサンプルプロジェクト�
 Omniverse Create 2021.3.8(Omniverse Kit 102)で動作確認しました。    
 ※ Kit 103では現状動作しません。     
 
-## パッケージ名
+## モジュール名
 
 ft_lab.game.Ball
 
-## 遊び方
+## Extensionを配置
 
-### Extensionを配置
-
-* 「ft_lab.game.Ball」を「Omniverseインストールフォルダ/pkg/create-2021.3.8/exts」に複製します。       
+* 「[ft_lab.game.Ball](ft_lab.game.Ball)」を「Omniverseインストールフォルダ/ov/pkg/create-2021.3.8/exts」に複製します。       
 * Omniverse Createを起動します。      
 
-### はじめに確認すること
+## はじめに確認すること
 
 以下をあらかじめ確認するようにしてください。     
 
@@ -32,6 +30,8 @@ ft_lab.game.Ball
 
 なお、フルスクリーン表示には対応していません。     
 
+## 遊び方
+
 ### ゲームの操作方法
 
 ゲームを開始する流れは以下になります。      
@@ -40,7 +40,7 @@ ft_lab.game.Ball
 ![ball_run_01.jpg](./doc/images/ball_run_01.jpg)    
 * メインメニューで[Game]-[Ball]-[Start/Reset]を選択するとゲームが開始されます。      
 ![ball_run_02.jpg](./doc/images/ball_run_02.jpg)    
-なお、直前に開いていたステージはクリアされる（ファイルの保存されない）ためご注意ください。     
+なお、直前に開いていたステージはクリアされます。ファイルの保存はされません。     
 * タイトル画面でキーボードの矢印キーの上下、または、GamePadのLeft Stickの上下でメニューを選択します。    
 ![ball_title.jpg](./doc/images/ball_title.jpg)    
 * [GAME] を選択して[Enter]キー、または、GamePadの[A]を押すと決定となり、ゲームが開始されます。
@@ -53,6 +53,6 @@ ft_lab.game.Ball
 
 ## Extensionの開発情報
 
-* [Extensionで使用している機能](./doc/extension_02.md)
+* [Extensionで使用している機能](./doc/extension_00.md)
 * [ファイル構成](./doc/extension_01.md)
 

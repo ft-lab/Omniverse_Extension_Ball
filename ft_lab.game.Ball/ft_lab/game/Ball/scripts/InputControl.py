@@ -87,19 +87,24 @@ class InputControl:
     # Racket movement event.
     # ------------------------------------------------------.
     def GetMoveRacketX (self):
-        for gamepad_desc in self._gamepads:
-            for gamepad_input in self._gamepad_inputs:
-                # Store value.
-                val = self._input.get_gamepad_value(gamepad_desc.gamepad_device, gamepad_input)
-                gamepad_desc.input_val[gamepad_input] = float(val)
-
         moveX  = 0.0
         scaleV = 30.0
         minV   = 0.3
-        if gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_LEFT] > minV:
-            moveX -= scaleV * gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_LEFT]
-        if gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_RIGHT] > minV:
-            moveX += scaleV * gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_RIGHT]
+
+        if self._gamepads != None:
+            gamepad_descD = None
+            for gamepad_desc in self._gamepads:
+                gamepad_descD = gamepad_desc
+                for gamepad_input in self._gamepad_inputs:
+                    # Store value.
+                    val = self._input.get_gamepad_value(gamepad_desc.gamepad_device, gamepad_input)
+                    gamepad_descD.input_val[gamepad_input] = float(val)
+
+            if gamepad_descD != None:
+                if gamepad_descD.input_val[carb.input.GamepadInput.LEFT_STICK_LEFT] > minV:
+                    moveX -= scaleV * gamepad_descD.input_val[carb.input.GamepadInput.LEFT_STICK_LEFT]
+                if gamepad_descD.input_val[carb.input.GamepadInput.LEFT_STICK_RIGHT] > minV:
+                    moveX += scaleV * gamepad_descD.input_val[carb.input.GamepadInput.LEFT_STICK_RIGHT]
 
         if self._push_key_left:
             moveX -= scaleV
@@ -114,23 +119,27 @@ class InputControl:
     def GetUpDown_TitleMenu (self):
         buttonV = [False, False, False]     # Up/Down/Enter
 
-        for gamepad_desc in self._gamepads:
-            for gamepad_input in self._gamepad_inputs:
-                # Store value.
-                val = self._input.get_gamepad_value(gamepad_desc.gamepad_device, gamepad_input)
-                gamepad_desc.input_val[gamepad_input] = float(val)
+        if self._gamepads != None:
+            gamepad_descD = None
+            for gamepad_desc in self._gamepads:
+                gamepad_descD = gamepad_desc
+                for gamepad_input in self._gamepad_inputs:
+                    # Store value.
+                    val = self._input.get_gamepad_value(gamepad_desc.gamepad_device, gamepad_input)
+                    gamepad_descD.input_val[gamepad_input] = float(val)
 
-        minV = 0.3
-        if gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_UP] > minV:
-            buttonV[0] = True
-        if gamepad_desc.input_val[carb.input.GamepadInput.LEFT_STICK_DOWN] > minV:
-            buttonV[1] = True
-        if gamepad_desc.input_val[carb.input.GamepadInput.DPAD_UP] > minV:
-            buttonV[0] = True
-        if gamepad_desc.input_val[carb.input.GamepadInput.DPAD_DOWN] > minV:
-            buttonV[1] = True
-        if gamepad_desc.input_val[carb.input.GamepadInput.A] > minV:
-            buttonV[2] = True
+            if gamepad_descD != None:
+                minV = 0.3
+                if gamepad_descD.input_val[carb.input.GamepadInput.LEFT_STICK_UP] > minV:
+                    buttonV[0] = True
+                if gamepad_descD.input_val[carb.input.GamepadInput.LEFT_STICK_DOWN] > minV:
+                    buttonV[1] = True
+                if gamepad_descD.input_val[carb.input.GamepadInput.DPAD_UP] > minV:
+                    buttonV[0] = True
+                if gamepad_descD.input_val[carb.input.GamepadInput.DPAD_DOWN] > minV:
+                    buttonV[1] = True
+                if gamepad_descD.input_val[carb.input.GamepadInput.A] > minV:
+                    buttonV[2] = True
 
         if self._push_key_up:
             buttonV[0] = True
