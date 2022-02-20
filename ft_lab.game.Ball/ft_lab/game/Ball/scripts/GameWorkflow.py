@@ -38,12 +38,20 @@ class GameWorkflow:
         pass
    
     # -----------------------------------------------.
-    # Change Path-Traced.
+    # Change RTX Path-Traced.
     # -----------------------------------------------.
-    async def _setPathTraced (self):
+    async def _setRTXPathTraced (self):
         await omni.kit.app.get_app().next_update_async()
         settings = carb.settings.get_settings()
         settings.set('/rtx/rendermode', 'PathTracing')
+
+    # -----------------------------------------------.
+    # Change RTX Real-Time.
+    # -----------------------------------------------.
+    async def _setRTXRealTime (self):
+        await omni.kit.app.get_app().next_update_async()
+        settings = carb.settings.get_settings()
+        settings.set('/rtx/rendermode', 'RaytracedLighting')
 
     # -----------------------------------------------.
     # Change resolution (1280 x 720).
@@ -186,8 +194,8 @@ class GameWorkflow:
         if self._app != None:
             self.GameExit()
 
-        # Set "RTX Path-traced"
-        asyncio.ensure_future(self._setPathTraced())
+        # Set "RTX Real-Time"
+        asyncio.ensure_future(self._setRTXRealTime())
 
         # Set Resolution(1280 x 720).
         #asyncio.ensure_future(self._setResolution_1280x720())
