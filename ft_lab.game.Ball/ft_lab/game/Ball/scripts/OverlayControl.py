@@ -130,7 +130,7 @@ class OverlayControl:
                 with omni.ui.VStack(height=0):
                     with omni.ui.Placer(offset_x=px, offset_y=py + fontHeight2):
                         # Set label.
-                        f = omni.ui.Label("Enter Key/GamePad A : Menu Apply")
+                        f = omni.ui.Label("Enter Key/GamePad A : Apply")
                         f.visible = self._showUI
                         f.set_style({"color": 0xff00ffff, "font_size": fontHeight2})
 
