@@ -51,6 +51,10 @@ ft_lab.game.Ball
 
 * メインメニューの[Game]-[Ball]-[Exit]を押すとゲームを終了します。    
 
+## 既知の問題
+
+* Ubuntuで動かした場合、更新イベント間隔が60fpsとかにならない ?(RTX Real-Timeにすると速すぎる)
+
 ## Extensionの開発情報
 
 * [Extensionで使用している機能](./doc/extension_00.md)
