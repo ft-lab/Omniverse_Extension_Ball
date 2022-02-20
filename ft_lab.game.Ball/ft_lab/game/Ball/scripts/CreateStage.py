@@ -19,14 +19,6 @@ class CreateStage:
         self._stageInfo = stageInfo
 
     # -----------------------------------------------.
-    # Change Path-Traced.
-    # -----------------------------------------------.
-    async def _setPathTraced (self):
-        await omni.kit.app.get_app().next_update_async()
-        settings = carb.settings.get_settings()
-        settings.set('/rtx/rendermode', 'PathTracing')
-
-    # -----------------------------------------------.
     # Set block.
     # -----------------------------------------------.
     def _setBlock (self, stage, orgPrimPath, path, pos, rot90):
@@ -91,9 +83,6 @@ class CreateStage:
         # New stage.
         omni.usd.get_context().new_stage()
         stage = omni.usd.get_context().get_stage()
-
-        # Set "RTX Path-traced"
-        asyncio.ensure_future(self._setPathTraced())
 
         # Create root(DefaultPrim).
         UsdGeom.Xform.Define(stage, self._stageInfo.rootPath)

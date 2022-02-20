@@ -5,6 +5,8 @@
 from pxr import Usd, UsdGeom, UsdShade, Sdf, Gf, Tf
 import omni.ext
 import omni.usd
+import omni.kit
+import carb.settings
 
 import asyncio
 import time
@@ -34,7 +36,28 @@ class GameWorkflow:
 
     def __init__(self):
         pass
-    
+   
+    # -----------------------------------------------.
+    # Change Path-Traced.
+    # -----------------------------------------------.
+    async def _setPathTraced (self):
+        await omni.kit.app.get_app().next_update_async()
+        settings = carb.settings.get_settings()
+        settings.set('/rtx/rendermode', 'PathTracing')
+
+    # -----------------------------------------------.
+    # Change resolution (1280 x 720).
+    # -----------------------------------------------.
+    async def _setResolution_1280x720 (self):
+        await omni.kit.app.get_app().next_update_async()
+        settings = carb.settings.get_settings()
+
+        width  = settings.get('/app/renderer/resolution/width')
+        height = settings.get('/app/renderer/resolution/height')
+        if width != 1280 or height != 720:
+            settings.set('/app/renderer/resolution/width', 1280)
+            settings.set('/app/renderer/resolution/height', 720)
+
     # ------------------------------------------.
     # Update event (Title).
     # ------------------------------------------.
@@ -150,6 +173,12 @@ class GameWorkflow:
     def GameStart (self):
         if self._app != None:
             self.GameExit()
+
+        # Set "RTX Path-traced"
+        asyncio.ensure_future(self._setPathTraced())
+
+        # Set Resolution(1280 x 720).
+        #asyncio.ensure_future(self._setResolution_1280x720())
 
         self._stateData = StateData()
         self._stateData.state = StateType.TITLE
