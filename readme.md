@@ -57,6 +57,8 @@ ft_lab.game.Ball
 
 ## Extensionの開発情報
 
+Omniverseのスクリプトについては、「 https://github.com/ft-lab/omniverse_sample_scripts 」もご参照くださいませ。     
+
 * [Extensionで使用している機能](./doc/extension_00.md)
 * [ファイル構成](./doc/extension_01.md)
 
