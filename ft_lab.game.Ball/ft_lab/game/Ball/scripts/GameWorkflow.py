@@ -34,6 +34,9 @@ class GameWorkflow:
     _app = None
     _pre_update_sub = None
 
+    _time = None
+    _60fps_sec = 1.0 / 60.0
+
     def __init__(self):
         pass
    
@@ -108,6 +111,14 @@ class GameWorkflow:
         if self._stateData.waitSec < self._stateData.waitEndSec:
             self._stateData.waitSec = time.time()
             return
+
+        # Skip to an interval of every 60 fps.
+        curTime = time.time()
+        if self._time == None:
+            self._time = curTime
+        if curTime - self._time < self._60fps_sec - 0.001:
+            return
+        self._time = curTime
 
         # Change the position of the ball.
         if self._stateData.gameMessageType == GameMessageType.GAME_FAILURE:
