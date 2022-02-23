@@ -54,7 +54,7 @@ ft_lab.game.Ball
 ## 既知の問題
 
 * フルスクリーンにすると、オーバレイで表示しているUI(LabelやImage)が消える。
-* Ubuntuで動かした場合、更新イベント間隔が60fpsとかにならない ?(RTX Real-Timeにすると速すぎる)
+* ~~Ubuntuで動かした場合、更新イベント間隔が60fpsとかにならない ?(RTX Real-Timeにすると速すぎる)~~ 60fpsになるように回避処理を行った。
 
 ## Extensionの開発情報
 
